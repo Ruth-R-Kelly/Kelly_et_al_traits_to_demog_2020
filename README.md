@@ -1,2 +1,14 @@
 # Kelly_et_al_traits_to_demog_2020
-Storage repo for code associated with the paper - Environmental and evolutionary context are required to infer plant life-history strategies from functional traits.
+
+Code and data files required for the analysis presented in the paper - Environmental and evolutionary context are required to infer plant life-history strategies from functional traits, are contained in this repo. 
+
+There are two main stages in this, 
+
+    -  The calculation of the Life History metrics from the Compadre database,
+       and it's linkage to the functional traits databases.
+    -  Attaching the environmental and phylogenetic data to this data. 
+    
+These are stored in the folders - "1_Calculating_Life_History_Metrics" and   "2_Joining_Env_Phylo_and_GLMMing" respectively.  
+
+Inside each of these folders there is a file called over view code, this is an rmarkdown file that describes and runs all of the analyses in that folder. 
+
