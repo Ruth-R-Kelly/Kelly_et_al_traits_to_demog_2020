@@ -7,24 +7,32 @@ output: html_document
 
 ## 
 
-This document is an overarching file which works with the r scripts in the same folder to calculate the demographic metrics used in Kelly et al. 2020.
+This document is an overarching file which works with the r scripts in the same folder to calculate the demographic metrics used in Kelly et al. 2020, 'Environmental and evolutionary context are required to infer plant life-history strategies from functional traits.'
 
 Required code and datafiles for this code are as follows:
 
+Datafiles
 * COMPADRE_v.4.0.1.RData
-* checking_matrices_Try_matches_08_06_2018_clean.r
-* merging_matrices_08_06_2018.r
-* seasonal_matrices_08_06_2018.R
-* long_periods_analysis_16_04_2018.R
-* splitting_seed_stage_number_08_06_2018.r
-* metrics_annual_no_seeds_08_06_2018.R
-* metrics_annual_1_seedstage_08_06_2018.R
-* metrics_annual_2_seedstage_08_06_2018.R
-* metrics_annual_3_seedstage_08_06_2018.R
 * Brosimum_alicastrum_27_10_2017_female_matA.csv
 * Brosimum_alicastrum_27_10_2017_female_matF.csv
 * silence_matrices_ellis_2012.csv
+* all_trait_means10_10_2017_added_datasets_vr4.csv
 * all_trait_means20_04_2018_added_datasets.csv
+
+R scripts
+* checking_matrices_Try_matches_03_2020_clean.R
+* merging_matrices_13_03_2020.r
+* seasonal_matrices_13_03_2018.R
+* long_periods_analysis_13_03_2030.R
+* splitting_seed_stage_number_13_03_2020.r
+* metrics_annual_no_seeds_13_03_2020.R
+* metrics_annual_1_seedstage_13_03_2020.R
+* metrics_annual_2_seedstage_13_03_2020.R
+* metrics_annual_3_seedstage_13_03_2020.R
+* refining_metrics_dataset_13_03_2020.R
+* match_demography_and_traits_03_04_2020.R
+
+R functions
 * exceptionalLife_function_KHealy_RK_2018.R
 * makelifetable_mx0_function_18_04_2018.R
 * pSeedling_function_15_06_2017.R
@@ -69,13 +77,13 @@ Furthermore, individual matrices are chosen by preference, where no individual m
 
 The resulting species were then matched to the list of species for which trait data was available for at least 4 traits of interest (in January 2018). This resulted in 180 matching species datasets with sufficient trait data. Each of these studies was then individually error checked to make sure that the Compadre data matched the original paper.  Where necessary ammendments where made to matrices and metadata to match the original sources. 
  
-Output of this code is a new RData file in the same format as compadre containing only these selected matrices and entitled : "ammended_annual_compadre_data_16_04_2018.RData" 
+Output of this code is a new RData file in the same format as compadre containing only these selected matrices and entitled :"ammended_annual_compadre_data_13_03_2020.RData"
 
 ####
 
 ```{r Step 1 Select suitable matrices, include = FALSE}
 
-source("checking_matrices_Try_matches_08_06_2018_clean.R")
+source("checking_matrices_Try_matches_03_2020_clean.R")
 ```
 
 ### Step 2. Average individual matrices from same study and location
@@ -91,14 +99,14 @@ Resulting matrices are the checked to make sure they are
  
 Matrices which do not meet this criteria are discarded from the dataset. 
  
-This code requires the dataset "ammended_annual_compadre_data_08_06_2018.RData" created in the previous step.
+This code requires the dataset "ammended_annual_compadre_data_13_03_2020.RData" created in the previous step.
 
-This code outputs the dataset "selected_annual_matrices_merged_per_population_16_04_2018.RData" required in the next step.
+This code outputs the dataset "selected_annual_matrices_merged_per_population_13_03_2018.RData" required in the next step.
 
 
 ```{r Temporal averaging of individual matrices}
 
-source("merging_matrices_08_06_2018.r")
+source("merging_matrices_13_03_2020.r")
 
 ```
 
@@ -106,11 +114,13 @@ source("merging_matrices_08_06_2018.r")
 
 Code to calculate demographic metrics for matrices marked with a periodicity different from yearly in Compadre dataset.  This includes species for which original matrices are supplied are seasonal transitions or multiyear transitions, but also species where the transition matrices are annual according to the original source and incorrectly classified in this Compadre version (because the Annual Periodicity refers incorrectly to the field work schedule and not the transitions in the final matrix). All matrices contained in this section have been checked against the original source and are adjusted as necessary. 
 
-These matrices are then appended to the merged matrices from step 2 ("selected_annual_matrices_merged_per_population_08_06_2018.RData") and are outputted first as "selected_matrices_with_seasonal_merged_per_population_08_06_2018.RData" after seasonal matrices are added and then as "all_selected_matrices_merged_per_population_08_06_2018.RData" after long period matrices are added. 
+These matrices are then appended to the merged matrices from step 2 ("selected_annual_matrices_merged_per_population_08_06_2018.RData") and are outputted first as "selected_matrices_with_seasonal_merged_per_population_13_03_2020.RData" after seasonal matrices are added and then as "all_selected_matrices_merged_per_population_13_03_2020.RData" after long period matrices are added. 
+
+These take a little while to run, be patient :)
 
 ```{r Step 3 Checking matrix adjustments and metric calculation for seasonal matrices}
-source("seasonal_matrices_08_06_2018.R")
-source("long_periods_analysis_08_06_2018.R")
+source("seasonal_matrices_13_03_2020.R")
+source("long_periods_analysis_13_03_2020.R")
 
 ```
 
@@ -120,19 +130,18 @@ source("long_periods_analysis_08_06_2018.R")
 
 Splits annual matrices by the number seed stages, checks that these seed stages are at the beginning and the life-stages in the matrix, and removes matrices with fewer than 2 non-seed stages. 
 
-This code requires the dataset "all_selected_matrices_merged_per_population_16_04_2018.RData" created in step 2. 
+This code requires the dataset "all_selected_matrices_merged_per_population_03_2020.RData" created in step 2. 
 
 And outputs datasets separated by the number of seed stages in the matrices as : 
- 
-               No seedbank recorded = "annual_no_Seedbank_16_04_2017.RData"
-               1 seedbank stage recorded = "annual_1yr_Seedbank_16_04_2018.RData"
-               2 seedbank stage recorded = "annual_2yr_Seedbank_16_04_2018.RData"
-               3 seedbank stage recorded = "annual_3yr_Seedbank_16_04_2018.RData"
+* No seedbank recorded = "annual_no_Seedbank_03_2020.RData"
+* 1 seedbank stage recorded = "annual_1yr_Seedbank_03_2020.RData"
+* 2 seedbank stage recorded = "annual_2yr_Seedbank_03_2020.RData"
+* 3 seedbank stage recorded = "annual_3yr_Seedbank_03_2020.RData"
 
 
 ```{r Step 3 Split matrices by number of seed stages}
 
-source("splitting_seed_stage_number_08_06_2018.r")
+source("splitting_seed_stage_number_13_03_2020.r")
 
 ```
 
@@ -155,18 +164,21 @@ The following metrics are derived for each matrix
 
 
 File outputs = 
-* "demography_non_seedbank_08_06_2018.csv"
-* "demography_1yr_seedbank_08_06_2018.csv"
-* "demography_2yr_seedbank_08_06_2018.csv"
-* "demography_3yr_seedbank_08_06_2018.csv"
+* "demography_non_seedbank_03_2020.csv"
+* "demography_1yr_seedbank_03_2020.csv"
+* "demography_2yr_seedbank_03_2020.csv"
+* "demography_3yr_seedbank_03_2020.csv"
+
+Be patient here too! 
  
+Some messages regarding errors will appear in the console with you run this chunk. They produce NAs in the dataset from some loops, but these are then fixed or removed in the following steps. It is therefore okay to ignore these messages in the console here. 
 
-```{r Step 3 calculate life-history metrics for annual datasets}
+```{r Step 3 calculate life-history metrics, echo = FALSE, include = FALSE}
 
-source("metrics_annual_no_seeds_08_06_2018.R")
-source("metrics_annual_1_seedstage_08_06_2018.R")
-source("metrics_annual_2_seedstage_08_06_2018.R")
-source("metrics_annual_3_seedstage_08_06_2018.R")
+source("metrics_annual_no_seeds_13_03_2020.R")
+source("metrics_annual_1_seedstage_13_03_2020.R")
+source("metrics_annual_2_seedstage_13_03_2020.R")
+source("metrics_annual_3_seedstage_13_03_2020.R")
 
 ```
 
@@ -176,45 +188,46 @@ Check demographic metrics for implausible outliers based on species biology,
 remove rows where life_span or Gini index or survival ratio could not be calculated due to survival issues (i.e. no death observed in final life stage in study).
 
 Then calculate mean values per species per GPS location. 
-Then select a random representative population per species from these location
-means.
 
-Editted on 29/05/2018 to also export all of the demography locations to 
+code then looks for more matrices that could be spatially averaged, where species matrices are from the same habitat and within 5km of each other and 
+averages these. 
 
-Output file: "metric_means_for_all_species_locations_by_habitats_08_06_2018.csv"
+Following this the original code select a random population per species where multiple locations still existed. This has been editted so that the code 
+now always selects the same populations, these being those that were originally 
+selected randomly and used in the paper. This effects 13 (out of 90) species for which alternative spatial locations could have been chosen. 
 
-Output file used in step 6: "demo_means_selected_08_06_2018.csv"
+Exports all of the important demography information to 
+
+Output file : "demo_means_selected_03_04_2020.csv"
+
 
 ```{r Step 5 combining metrics}
-source("refining_metrics_dataset_06_06_2018.R")
+source("refining_metrics_dataset_13_03_2020.R" )
 
 
 ```
 
 ### Step 6. Merge demographic metrics with trait dataset. 
 
-#### Note this is where I stopped working on 06/03/2020
 
 Selected species with 4 matching traits, LMA, LA, Height and seed mass. 
 
 Required files: 
 "all_trait_means20_04_2018_added_datasets.csv"
-"demo_means_selected_08_06_2018.csv"
+"demo_means_selected_03_04_2020.csv"
 
 Output file: 
- - All demography and traits - "matching_trait_demo_data_08_06_2018.csv"
- - Four most frequently measured traits - "matching_4traits_demo_data_08_06_2018.csv" Height, LMA, LA and Seed mass
- - Three most frequently measured traits
+ -"matching_4traits_demo_data_03_04_2020.csv" 
  
- - "matching_4_H_LN_LMA_SM_traits_demo_data_25_07_2019.csv" Height, LMA, LN and Seed       mass
- - Three most frequently measured traits
+This file contains matching Height, Leaf area, LMA, and Seed mass for all 
+species where we had data on all 4 of these traits (80 species)
  
- -"matching_3traits_demo_data_08_06_2018.csv" Height, LMA, and Seed mass
- 
- 
- 
+This file feeds into the next steps given in the folder 2_Joining_Env_phylo_and_GLMMing - if you've survived this far, go there next,
+follow the overview rmd there :)
+
+
 ```{r Step 6 Merging demographic metrics and trait data}
-source("match_demography_and_traits_08_06_2018.R")
+source("match_demography_and_traits_03_04_2020.R")
 
 
 ```

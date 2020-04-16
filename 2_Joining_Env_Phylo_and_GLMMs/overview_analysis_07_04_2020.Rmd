@@ -1,0 +1,136 @@
+---
+title: "Traits to demog analysis Folder 2 of 2"
+author: "Ruth Kelly"
+date: "07 April 2020"
+output: html_document
+---
+
+
+## 
+
+This document is an overarching file which works with the R scripts in the same folder to analyse the matched trait and demographic dataset, resulting from the analysis conducted in the folder "1_Calculating_Life_History_Metrics" and described in the overview file "overview_code_03_2020.Rmd" therein.   
+For the paper Kelly et al. 2020 'Environmental and evolutionary context are required to infer plant life-history strategies from functional traits.'
+
+Required code and datafiles for this code are as follows:
+
+ * "matching_3traits_demo_data_20_04_2017.csv"
+ * "matching_4traits_demo_data_20_04_2017.csv"
+ * "matching_trait_demo_data_20_04_2017.csv"  
+ * "Vascular_Plants_rooted.dated.tre"  (Zanne et al. 2014)
+ 
+ 
+This first chunk of code sets my working directory, change this to wherever these files are stored on your machine. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set your root direction to the the folder '2_Joining_Env_Phylo_and_GLMMing' 
+# whereever it lives on your machine
+knitr::opts_chunk$set(root.dir = "C:/R/Kelly_et_al_traits_to_demog_2020/2_Joining_Env_Phylo_and_GLMMs")
+```
+
+
+
+The following libraries are needed.  If you don't have them, install them first using the function 'install.packages()'
+
+```{r libraries}
+#library("popdemo") # for 
+library("ape") # for working with phylogenies
+ library("vegan") # for calculating PCA
+library("phangorn") # Phylogenetic ultrametric
+library("caper") # Making comparative objects from phylos for mcmGLMM
+library("dplyr") # for data manipulation
+library("sp") # for creating spatial points object
+ library("raster") # for loading and manipulating climate and aridity rasters
+library("MCMCglmm") # multivariate bayesian GLMMs
+
+### Note: some of these packages overwrite functions in others, 
+# the order they are loaded in could matter. 
+
+
+```
+
+
+### Step 1 Match phylogeny to species in trait/demo datasets 
+
+This code takes the phylogenetic tree from Zanne et al. 2014.  
+ and matches it to the species in our trait-demography dataset. 
+"Vascular_Plants_rooted.dated.tre"
+
+
+12 species which were not present in the phylogeny have been added by 
+placing it in the location of the most closely related species in the same genera.
+Where a detailed phylogeny for the genus could not be found the species location was assigned randomly to the location of another species in the same genus. 
+
+The phylogenetic tree is then pruned to contain only those species present in the trait-demography dataset. Finally the trait data is reordered to match the order of the phylogeny. 
+
+Outputs : 
+"reduced_tree_for_traits_03_2020.nex"
+"phylo_ordered_trait_demog_03_2020.csv"
+
+
+```{r attach phylogeny, include=FALSE}
+source("drop_phylo_names_03_2020.R")
+```
+
+
+### Step 2 Match environmental data to species based on locations.
+
+This code matches trait and demographic data with environmental information,
+as per Coutts et al. 2016 "Extrapolating demography with climate, proximity and phylogeny: approach with caution. Ecology letters, 19(12), pp.1429-1438."
+
+Specifically, this joins information on Aridity Index, Temperature, and standard deviation of precipitation. 
+
+Ariditiy Index is from - Trabucco et al. 2009. Global Aridity Index (Global-Aridity) and Global Potential Evapo-Transpiration (Global-PET) Geospatial Database. CGIAR Consortium for Spatial Information. Published online, available from the CGIAR-CSI GeoPortal at:  http://www.csi.cgiar.org. Here, Aridity Index (AI) is used to quantify precipitation deficit over atmospheric water demand. This is calculated at ~30 second resolution (eg. 1km at the equator).
+
+It is calculatied as a composite measure of based on  Precipitation, PET (Potential Evapotranspiration), and Temperature (T). Where Potential Evapotranspiration is calculated as a function of solar radiation, mean temperature and temperature range.  We Log transformed AI as we expect the the influence of water stress to be greater where water is limiting (i.e. at lower values).
+
+Temperature variables are Bio 1 to Bio 7. From WorldClim V2, current climate data 1970-2000, also at a ~30 second resolution. Ref : "Fick, S.E. and R.J. Hijmans, 2017. Worldclim 2: New 1-km spatial resolution climate surfaces for global land areas. International Journal of Climatology."
+
+  * BIO1 = Annual Mean Temperature
+  * BIO2 = Mean Diurnal Range (Mean of monthly (max temp - min temp))
+  * BIO3 = Isothermality (BIO2/BIO7) (* 100)
+  * BIO4 = Temperature Seasonality (standard deviation *100)
+  * BIO5 = Max Temperature of Warmest Month
+  * BIO6 = Min Temperature of Coldest Month
+  * BIO7 = Temperature Annual Range (BIO5-BIO6)
+
+
+These are all highly correlated and so are compressed into a single temperature variable using PCA. This variable represents "a gradient from cooler seasonably variable temperate climates to hot, less-seasonal tropical climates" (as per Coutts 2016). This explains 67.95% of variance in the temperature data. 
+
+
+AridityIndex may be interpretted as..
+ Aridity Index Value 		Climate Class
+    < 0.03			           Hyper Arid
+ 0.03 – 0.2			           Arid
+ 0.2 – 0.5			            Semi-Arid
+ 0.5 – 0.65			        Dry sub-humid
+  - > 0.65			                 Humid
+
+Required files: 
+  - WorldClim climate maps Bio_1 - Bio_7 - http://www.worldclim.org/
+  - Aridity Index - http://www.csi.cgiar.org. (both downloaded 22/04/2018)
+  - Trait and demography dataset - "phylo_ordered_trait_demog_03_2020.csv"
+
+On my computer the climate files are stored in a folder called :
+"C:/R/Climate_maps_2018/Climate"  I have set this location in the code chunk below. You will not to download these files onto your own computer and 
+direct R to the correct location in this chunk. 
+
+
+Outputs: 
+  - "spatialPoints_withclim_03_2020.Rdata"
+  - "data_with_env_vars_03_2020.csv"
+
+```{r extract env var, include=FALSE}
+Clim_files <- "C:/R/Climate_maps_2018/Climate"
+Arid_files <-"C:/R/Climate_maps_2018/AI_annual/ai_yr"
+Main_files <- "C:/R/Kelly_et_al_traits_to_demog_2020/2_Joining_Env_Phylo_and_GLMMing"
+source("extract_env_04_2020.R")
+```
+
+### Step 3 - Finally some analysis (a.k.a. the MCMCglmm bit)
+
+```{r mcmcGLMM}
+
+```
+

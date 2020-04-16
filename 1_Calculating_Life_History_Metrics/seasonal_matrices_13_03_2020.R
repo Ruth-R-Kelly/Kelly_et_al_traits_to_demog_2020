@@ -1,4 +1,4 @@
-### R last edit script 08_06-2018 - Ruth Kelly
+### R last edit script 13_03_2020 - Ruth Kelly
 
 ### This script checks (and where necessary converts the seasonal matrices to annual 
 ### transition matrices) for species in Compadre vr. 4.0.1 where AnnualPeriodicity > 1 and 
@@ -18,11 +18,11 @@
 ### this is then appended to the merged annual matrice which were outputted in step 2. 
 
 ### and saved as 
-## "selected_annual_matrices_merged_per_population_16_04_2018.RData"
+## "selected_annual_matrices_merged_per_population_13_03_2020.RData"
 
 
 
-####---- begin code proper ----
+####---- Begin code proper ----
 
 
 ###  remove R objects from memory
@@ -84,8 +84,8 @@ table(metadata1$SpeciesAuthor, metadata1$AnnualPeriodicity)
 
 metadata1$UID1 <- seq(1:nrow(metadata1))
 
-#####
-### species check 
+
+#### Check species individually #### 
 
 #Acacia_suaveolens - Matrix given as Annual matrix in Compadre matrix file. Periodicity in original paper was 3 -
 #    Measured 1997 April/August, 1997 September, 1997 November and 1998 April/August
@@ -96,7 +96,7 @@ metadata1$UID1 <- seq(1:nrow(metadata1))
 
 # Asarum_canadense - Can't use this in this study as it has clonal matrices.  Matrices are digitized as annual matrices. Although, surveys were biannual. 
 
-##############################
+##
 
 
 # Bromus_tectorum - ### seasonal matrices with 3 transitions  ### but oddly constructed and 
@@ -114,8 +114,8 @@ metadata1$UID1 <- seq(1:nrow(metadata1))
 ## years"
 
 fg <- metadata1[metadata1$SpeciesAuthor == "Fagus_grandifolia" & metadata1$MatrixPopulation %in% c("Closed canopy", "Open canopy"),]
-fg$DOI.ISBN
-fg$Lat
+# fg$DOI.ISBN
+# fg$Lat
 
 ### Longitude corrected from original paper. 
 fg$Lon <- -84.33
@@ -151,9 +151,7 @@ fg$habitatAuthor <- "forest"
 metadata_keep1 <- fg
 mat_keep1 <- fg1
 
-##### 
-
-fg1
+#
 
 ## Fragaria_vesca  do not use as only clonal reproduction is included. 
 
@@ -186,7 +184,7 @@ metadata_keep1$SurvivalIssue <- SI
 ### remove matrices where SI > 1
 
 metadata_keep2 <- metadata_keep1[metadata_keep1$SurvivalIssue <1,]
-metadata_keep1$SurvivalIssue <1
+
 mat2 <- mat_keep1[which(metadata_keep1$SurvivalIssue <1)]
 
 ###########  check ergodicity, primitivity, irreducibility and seedbank. 
@@ -208,11 +206,11 @@ isErgodic(mat2[[1]]$matA)
 isPrimitive(mat2[[1]]$matA)
 isIrreducible(mat2[[1]]$matA)
 
-#### all good. 
+## all good. 
 
 ### add this to outputted data from merging step -  "selected_annual_matrices_merged_per_population_27_03_2018.RData"
 
-sel_data <- readRDS("selected_annual_matrices_merged_per_population_08_06_2018.RData")
+sel_data <- readRDS("selected_annual_matrices_merged_per_population_13_03_2018.RData")
 
 full_meta2$UID_new <- max(sel_data$metadata$UID_new) + 1
 
@@ -222,9 +220,9 @@ sel_data$mat <- c(sel_data$mat,mat2)
 matrixclass1_seas <- matrixclass1[full_meta2$UID1]
 sel_data$matrixClass <- c(sel_data$matrixClass, matrixclass1_seas)     
 
-#### write to new object
+#### write to new object ####
 
 saveRDS(sel_data,
-     file =  "selected_matrices_with_seasonal_merged_per_population_08_06_2018.RData")
+     file =  "selected_matrices_with_seasonal_merged_per_population_13_03_2020.RData")
 
 ###

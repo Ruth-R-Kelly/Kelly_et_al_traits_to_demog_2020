@@ -1,4 +1,4 @@
-### R script last editted 08-06-2018 - Ruth Kelly
+### R script last editted 13_03_2020 - Ruth Kelly
 
 ### This script checks (and where necessary converts the longer period matrices to annual 
 ### transition matrices) for species in Compadre vr. 4.0.1 where AnnualPeriodicity < 1 and 
@@ -51,10 +51,10 @@ matrixclass1 <- compadre$matrixClass[metadata1$UID1]
 table(metadata1$SpeciesAuthor, metadata1$AnnualPeriodicity)
 
 # #                     0.1 0.2 0.2; 1 0.333; 0.2 0.4 0.5
-# Abies_concolor          0  17      0          0   0   0   ## Correct Annual Periodicity 0.2
+# Abies_concolor          0  17      0          0   0   0   ## Correct Annual Periodicity to 0.2
 # Acer_saccharum          0   0     10          0   0   0   ## Acer saccharum errors see below
 # Cornus_florida          0   1      0          0   0   0   ## OMIT - Cornus florida errors
-# Pinus_ponderosa         0   1      0          0   0   0   ## Pinus ponderosa correct 0.2
+# Pinus_ponderosa         0   1      0          0   0   0   ## Pinus ponderosa correct to 0.2
 # Prioria_copaifera       0   0      0          3   0   0   ## Prioria copaifera errors see below
 # Shorea_leprosula_2      3   0      0          0   0   0   ## OMIT - I don't have raw data to check
 
@@ -164,17 +164,17 @@ metadata4 <- rbind(ac, AS2, PP)
 mat_long <- compadre$mat[metadata4$UID1]
 matrixClass <- compadre$matrixClass[metadata4$UID1]
 
-###########
+###
 
 
 ### check to make sure none of these species have clonality matrices
-for(i in 1:length(mat_long)) {
-  print(sum(mat_long[[i]]$matC))
-  }
+# for(i in 1:length(mat_long)) {
+#   print(sum(mat_long[[i]]$matC))
+#   }
 
 
 periodicity1 <- 1/as.numeric(metadata4$AnnualPeriodicity)
-periodicity1
+
 
 
 
@@ -197,9 +197,9 @@ mat_long1[[i]]$matF <- x3
 print(i)
 }
 
-###########
 
-###########  check ergodicity, primitivity, irreducibility and seedbank. 
+
+## check ergodicity, primitivity, irreducibility and seedbank. 
 
 ## create new UID for metadata4
 metadata4$UID1 <- seq(1,nrow(metadata4),1)
@@ -231,7 +231,7 @@ nrow(full_meta2)
 length(unique(full_meta2$Accepted_species))
 ### all qualify here.. 
 
-### now Erg, prim and irred
+### now check Erg, prim and irreducibility
 
 
 is_ergodic <- vector()
@@ -258,7 +258,7 @@ all_true
 
 ### add this to outputted data from merging step -  "selected_annual_matrices_merged_per_population_27_03_2018.RData"
 
-sel_data <- readRDS("selected_matrices_with_seasonal_merged_per_population_08_06_2018.RData")
+sel_data <- readRDS("selected_matrices_with_seasonal_merged_per_population_13_03_2020.RData")
 names(sel_data)
 
 metadata4$UID_new <- max(sel_data$metadata$UID_new) + 1
@@ -272,6 +272,6 @@ sel_data$matrixClass <- c(sel_data$matrixClass, matrixClass)
 #### write to new object
 
 saveRDS(sel_data,
-     file = "all_selected_matrices_merged_per_population_08_06_2018.RData" )
+     file = "all_selected_matrices_merged_per_population_13_03_2020.RData" )
 
 ###

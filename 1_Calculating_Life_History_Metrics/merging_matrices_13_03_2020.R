@@ -1,4 +1,4 @@
-### last edit 06/03/2020
+### last edit 13/03/2020
 
 ### merging matrices from different years in the same population.  
 ### Then checking ergodicity, primitivity and irreducibility and removing matrices that do not meet these criteria. 
@@ -13,7 +13,7 @@ rm(list = ls())
 # library("popdemo")
 ### load data
 
-data1 <- readRDS("ammended_annual_compadre_data_08_06_2018.RData")
+data1 <- readRDS("ammended_annual_compadre_data_13_03_2020.RData")
 
 
 ####  create objects for the metadata and the matrices 
@@ -142,7 +142,6 @@ summary(as.factor(metadata_match1$SpeciesAuthor))
 
 metadata_match1$MatrixStartYear <- indiv_summary$Min_year
 metadata_match1$MatrixEndYear <- indiv_summary$Max_year
-summary(as.factor(metadata_match1$SpeciesAuthor))
 
 #####
 
@@ -165,10 +164,6 @@ summary(newSurvivalIssue)
 length(metadata_match1$SurvivalIssue)
 
 metadata_match1$SurvivalIssue <- newSurvivalIssue
-
-nrow(metadata_match1[metadata_match1$SurvivalIssue > 1,])
-
-summary(as.factor(metadata_match1$SpeciesAuthor))
 
 
 ######  bind metadata_match1 with mean and pooled matrix info in metadata1
@@ -225,7 +220,7 @@ which(check_mats == "FALSE")
 
 # #### create vector of NA's in which to store info about ergodicity.. 
 # 
-length(mats_fin)
+
 
 erg1 <- rep(NA,length(mats_fin))
 
@@ -233,22 +228,20 @@ erg1 <- rep(NA,length(mats_fin))
 #### here try catch forces function to continue even if errors arise for a given 'i', 
 ### this is why the NA's are needed in the definition of the vector 'erg1'
 for(i in 1:length(mats_fin)) {
-# tryCatch({
+ tryCatch({
               res1 <- isErgodic(mats_fin[[i]]$matA)
               erg1[i] <- res1
    }
- #  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
- #}
+ , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+ }
 
  length(erg1)
-## 262 
+## 261
 
 ergT <- which(erg1 == TRUE)
 length(ergT)
 ## [1] 250
 
-# which(erg1 == FALSE)
-## [1]  51  53 102 104 136 137 181 197 204 206 256
 
 meta_erg <- metadata_fin[ergT,] 
  
@@ -354,7 +347,7 @@ matrixClass <- data1$matrixClass
 annual_matrixClass  <- matrixClass[Metadata_fin2$UID1]
 # length(annual_matrixClass)
 
-#dim(annual_metadata)
+dim(annual_metadata)
 # ## [1] 244  52
 # 
 # ################
@@ -380,7 +373,7 @@ obs1[[4]] <- data1$version
 names(obs1) <- c("metadata", "mat", "matrixClass", "version")
 # 
 saveRDS(obs1,
-         file =  "selected_annual_matrices_merged_per_population_08_06_2018.RData")
+         file =  "selected_annual_matrices_merged_per_population_13_03_2018.RData")
 
 #############################
 

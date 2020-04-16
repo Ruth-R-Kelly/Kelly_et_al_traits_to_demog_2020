@@ -1,4 +1,4 @@
-### Last editted 06/03/2020
+### Last editted 13/03/2020
 
 #This code file was written by Ruth Kelly in April 2017 
 # to derive demographic metrics for species with no seedbanks from annual matrices 
@@ -25,18 +25,13 @@
 # * Gini Index for degree of iteroparity
 
 
-#
-
-########### required files 
-### "annual_no_Seedbank_16_04_2018.RData"
-
 ### delete background files
 
 rm(list = ls())
 
 #### load dataset ####
 
-NS_data <- readRDS("annual_no_Seedbank_08_06_2018.RData")
+NS_data <- readRDS("annual_no_Seedbank_03_2020.RData")
 
 ## add libraries
 # 
@@ -122,12 +117,18 @@ NS_dead_50 <- c()
 
 
 for(i in 1:nrow(metadata_NS)) {
+  tryCatch({
   NS_dead[[i]] <- exceptionalLife(mat_NS[[i]]$matU)
   NS_dead_999[i]<- NS_dead[[i]][[4]]
   NS_dead_99[i] <- NS_dead[[i]][[3]]
   NS_dead_95[i] <- NS_dead[[i]][[2]]
   NS_dead_50[i] <- NS_dead[[i]][[1]]
+  }
+  
+  , warning =function(war){print("NA warnings in exceptional life calculations, okay to ignore")})
+  
 }
+
 
 
 which(is.na(NS_dead_50))
@@ -229,11 +230,10 @@ for(i in 1:nrow(metadata_NS)) {
     La1[i] <- lifeTimeRepEvents(mat_NS[[i]]$matU, mat_NS[[i]]$matF, startLife = 1)[[2]]
     RepLifeExp[i] <- lifeTimeRepEvents(mat_NS[[i]]$matU, mat_NS[[i]]$matF, startLife = 1)[[3]]
   }
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about Lapack routine and singularity okay to ignore here.",conditionMessage(e), "\n") })
 }
 
 
-summary(La1)
 
 
 summary(RepLifeExp)
@@ -422,7 +422,7 @@ for(i in 1:nrow(metadata_NS)) {
     
   }
   
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about NaN okay to to ignore here:",conditionMessage(e), "\n")})
 }
 
 ## for life span = 99.9%
@@ -435,7 +435,7 @@ for(i in 1:nrow(metadata_NS)) {
     
   }
   
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about NaN okay to to ignore here:",conditionMessage(e), "\n")})
 }
 
 
@@ -457,12 +457,10 @@ for(i in 1:nrow(metadata_NS)) {
     if(floor(La1[i]) > NS_dead_999[i]){
       GiniF_repro[i] <- NA
     }
-    
-    
         
   }
+  , error=function(e){cat("ERROR about NaN okay to to ignore here:",conditionMessage(e), "\n")})
 
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
 }
 
 summary(GiniF_repro)
@@ -491,6 +489,7 @@ names(demo_data_NS)[53:69] <- c("Mean_repro", "Net_repro", "Age_50_dead", "Age_9
                                  "Gini_life99", "Gini_life999",  "Gen_time", "NSeedStages")
 
 
-write.csv(demo_data_NS, "demography_non_seedbank_08_06_2018.csv")
+write.csv(demo_data_NS, "demography_non_seedbank_03_2020.csv")
 
 ###########################################################
+

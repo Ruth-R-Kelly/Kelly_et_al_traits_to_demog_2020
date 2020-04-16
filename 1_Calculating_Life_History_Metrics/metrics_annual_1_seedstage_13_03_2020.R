@@ -1,12 +1,16 @@
-### Most recent edits 06/03/2020
+### Last editted 13/03/2020
 
-#This code file was written by Ruth Kelly in April 2017 updated January 2018
-# to derive demographic metrics for species with 3 years of seedbanks from annual matrices 
-# in Compadre. 
+#This code file was written by Ruth Kelly in April 2017 updated January and April 2018
+# to derive demographic metrics for species with no seedbanks from annual matrices 
+# in Compadre (i.e. annual periodicity of measurements = 1). 
 # Matrices have already been checked for various criteria ,
-# see details in "overview_code_25_07_2018.rmd"
+# see details in "overview_code_03_2020.rmd"
+
 ### Thanks to Kevin Healy (https://github.com/healyke) for help with this code 
 
+### The functions 'lifeTimeRepEvents' and 'makeLifeTable_mx0' were adapted from code 
+# in the package 'Mage' (https://github.com/jonesor/compadreDB/tree/master/Mage see notes below)
+#
 
 # 
 # The following metrics are derived for each matrix
@@ -21,11 +25,19 @@
 # * Gini Index for degree of iteroparity
 
 
+#
+
+### clear history
+
 rm(list = ls())
+
+
+########### required files 
+### "annual_1yr_Seedbank_16_04_2018.RData"
 
 #### load dataset ####
 
-S3_data <- readRDS("annual_3yr_Seedbank_08_06_2018.RData")
+S1_data <- readRDS("annual_1yr_Seedbank_03_2020.RData")
 
 ## add libraries
 # 
@@ -33,47 +45,45 @@ S3_data <- readRDS("annual_3yr_Seedbank_08_06_2018.RData")
 # library("popdemo")
 # library("MASS")
 # library("ineq")
+# library("expm")
+
+
 
 ### a brief check to make sure data looks sensible
 
-names(S3_data)
+names(S1_data)
 
-# [1] "metadata"    "mat"         "matrixClass" "version"  
+# [1] "metadata"  "mat" "matrixClass" "version"  
 
 
 ### assign each unit to an object
 
-metadata_S3 <- S3_data$metadata
-dim(metadata_S3)
-# 7 52
-length(unique(metadata_S3$SpeciesAccepted))
-#1
+metadata_S1 <- S1_data$metadata
+dim(metadata_S1)
+# 102 52
+length(unique(metadata_S1$SpeciesAccepted))
+# 32
+metadata_S1$UID1 <- seq(1, nrow(metadata_S1),1)
 
-metadata_S3$UID1 <- seq(1, nrow(metadata_S3),1)
-
-mat_S3 <- S3_data$mat
-#length(mat_S2)
+mat_S1 <- S1_data$mat
+#length(mat_S1)
 #mat_S1[[1]]
 
-matrixClass_S3 <- S3_data$matrixClass
-length(matrixClass_S3)
-matrixClass_S3[[1]]
+matrixClass_S1 <- S1_data$matrixClass
+length(matrixClass_S1)
 
 #######################
-S3_data$version
+S1_data$version
 
 ### check for survivalIssue
 
-length(which(metadata_S3$SurvivalIssue >1))
-### 0 
+metadata_S1$SurvivalIssue[which(metadata_S1$SurvivalIssue > 1)]
+### 1
+### This equals 1 . very odd. 
 
-length(which(metadata_S3$SurvivalIssue == 1))
-#2
+length(which(metadata_S1$SurvivalIssue == 1))
+#30
 
-#### ----  Make a life-history table for each population matrix ---- #### 
-# 
-
-startLife <- 4
 #### ---- Calculate survival curves ----
 # 
 
@@ -88,11 +98,14 @@ startLife <- 4
 source("makelifetable_mx0_function_18_04_2018.R")  
 
 #### store results in : 
-lxmx_curve_S3 <- list()
+lxmx_curve_S1 <- list()
+
+### Calculate from first above-ground stage. 
+startLife <- 2
 
 ### 
-for(i in 1:nrow(metadata_S3)) {
-  lxmx_curve_S3[[i]] <-  makeLifeTable_mx0(matU =  mat_S3[[i]]$matU, matF =  mat_S3[[i]]$matF, 
+for(i in 1:nrow(metadata_S1)) {
+  lxmx_curve_S1[[i]] <-  makeLifeTable_mx0(matU =  mat_S1[[i]]$matU, matF =  mat_S1[[i]]$matF, 
                                        startLife = startLife, nSteps = 10000)
 }
 
@@ -115,13 +128,17 @@ dead_99 <- c()
 dead_95 <- c()
 dead_50 <- c()
 
-
-for(i in 1:nrow(metadata_S3)) {
-  S_dead[[i]] <- exceptionalLife(mat_S3[[i]]$matU)
-  dead_999[i]<- S_dead[[i]][[4]]
-  dead_99[i] <- S_dead[[i]][[3]]
-  dead_95[i] <- S_dead[[i]][[2]]
-  dead_50[i] <- S_dead[[i]][[1]]
+for(i in 1:nrow(metadata_S1)) {
+  tryCatch({
+    S_dead[[i]] <- exceptionalLife(mat_S1[[i]]$matU)
+    dead_999[i]<- S_dead[[i]][[4]]
+    dead_99[i] <- S_dead[[i]][[3]]
+    dead_95[i] <- S_dead[[i]][[2]]
+    dead_50[i] <- S_dead[[i]][[1]]
+  }
+  
+  , warning =function(war){print("NA warnings in exceptional life calculations, okay to ignore")})
+  
 }
 
 
@@ -135,21 +152,34 @@ which(is.na(dead_95))
 # integer(0)
 
 which(is.na(dead_99))
-# integer(0)
+#[1] 80 82
 
 which(is.na(dead_999))
-# integer(0)
+# [1] 80 82
 
-summary(as.numeric(dead_50))
- summary(as.numeric(dead_99))
+metadata_S1$SurvivalIssue[which(is.na(dead_99))]
+# [1] 1 1
+
+metadata_S1$SpeciesAccepted[which(is.na(dead_999))]
+#[1] "Sapium sebiferum" "Sapium sebiferum"
 
 
-###### ---- Calculate age at reproduction and mature life expectancy ---- 
 
+### these issues arise for "Sapium sebiferum" where survival = 1 in the last stage
+## i.e. death was not observed in the oldest plants. 
+###  
+
+
+#### ---- Life time reproductive events ----
+
+### Age at maturity - Calculated using 'lifeTimeRepEvents' function adapted from 
+#  package "Mage". This version ignores clonality matrices as there are none
+# in this dataset. 
 
 # ### Calculating 'Mature Life Expectancy' using the function lifeTimeRepevents. 
 # 
-# Here we use a slightly older version of the function lifeTimeRepEvents  from the Mage package by Owen Jones which calculates - 
+# Here we use a slightly older version of the function lifeTimeRepEvents  
+## from the Mage package by Owen Jones which calculates - 
 #   * pRep: probability of achiving sexual maturity
 # * 'La': mean age at maturity (in the same units as the matrix population model).
 # * 'meanLifeExpectancy': mean life expectancy conditional on entering the
@@ -218,19 +248,28 @@ La1 <- c()
 RepLifeExp <- c()
 
 
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   tryCatch({
-    La1[i] <- lifeTimeRepEvents(mat_S3[[i]]$matU, mat_S3[[i]]$matF, startLife = startLife)[[2]]
-    RepLifeExp[i] <- lifeTimeRepEvents(mat_S3[[i]]$matU, mat_S3[[i]]$matF, startLife = startLife)[[3]]
+    La1[i] <- lifeTimeRepEvents(mat_S1[[i]]$matU, mat_S1[[i]]$matF, startLife = startLife)[[2]]
+    RepLifeExp[i] <- lifeTimeRepEvents(mat_S1[[i]]$matU, mat_S1[[i]]$matF, startLife = startLife)[[3]]
   }
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about lapack routine and singularity okay to ignore here.",conditionMessage(e), "\n") })
 }
+
 
 
 summary(La1)
 
 
 summary(RepLifeExp)
+
+
+which(is.na(La1))
+
+## same as previous issues
+# metadata_S1[which(is.na(La1)),] # Sapium_sebiferum
+
+######
 
 #### ---- Calculate survival index 3 ways!----
 
@@ -243,52 +282,53 @@ summary(RepLifeExp)
 Survival_99 <- dead_50/dead_99
 Survival_999 <- dead_50/dead_999
 Survival_LaRepLife <- dead_50/(La1 + RepLifeExp)
+## summary(Survival_NS)
 
+#### ---- Net reproductive rate ----
 
-
-###### ---- Net reproductive rate ---- 
+### 
 
 net_rep <- c()
 
 
-for(i in 1:nrow(metadata_S3)) {
-  net_rep[i] <-  net.reproductive.rate(mat_S3[[i]]$matA, r = mat_S3[[i]]$matF)
+for(i in 1:nrow(metadata_S1)) {
+  net_rep[i] <-  net.reproductive.rate(mat_S1[[i]]$matA, r = mat_S1[[i]]$matF)
 }
 
 
 summary(net_rep)
 
 
+### 
 
-####### ---- mean annual reproductive rate ----
+which(is.na(net_rep))
+# [1] 82
+### same issue as previous.. 
 
-#### Counted from above-ground offspring and life stages only
+#### ---- mean annual per capita reproductive rates ---- 
 
+#### mean annual reproductive rate.. weighting seed by their probability of 
+## becoming seedlings
 
 source("pSeedling_function_15_06_2017.r")
 
 mean_rep <- c()
 
-startLife = 4
+startLife <- 2
 
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   
   ## use function pSeedling to calculate prop survival to seedling stage, from first stage 
   
-  p_germ1 <- pSeedling(mat_S3[[i]]$matU, seed1 = 1, seedling1 = 4)
-  p_germ2 <- pSeedling(mat_S3[[i]]$matU, seed1 = 2, seedling1 = 4)
-  p_germ3 <- pSeedling(mat_S3[[i]]$matU, seed1 = 3, seedling1 = 4)
+  p_germ <- pSeedling(mat_S1[[i]]$matU, seed1 = 1, seedling1 = 2)
   
-  #####
-  if(p_germ1 > 1.0001){stop("Error germination rate > 1")}
-  if(p_germ2 > 1.0001){stop("Error germination rate > 1")}
-  if(p_germ3 > 1.0001){stop("Error germination rate > 1")}
+  if(p_germ > 1.0001){stop("Error germination rate > 1")}
+  
   ### Adjust first row of the F matrix by the probability of surviving to seedling ##stage from seedbank 
   
-  matFtemp <- mat_S3[[i]]$matF
-  matFtemp[1,] <- mat_S3[[i]]$matF[1,]*p_germ1
-  matFtemp[2,] <- mat_S3[[i]]$matF[2,]*p_germ2
-  matFtemp[3,] <- mat_S3[[i]]$matF[3,]*p_germ3
+  matFtemp <- mat_S1[[i]]$matF
+  matFtemp[1,] <- mat_S1[[i]]$matF[1,]*p_germ
+  
   ##Then sum up the reproductive rates across the F matrix
   
   repo_sum <- vector()
@@ -299,14 +339,13 @@ for(i in 1:nrow(metadata_S3)) {
   }
   
   #### Calculate stable stage distribution based on full matA
-  SSD <- eigen.analysis(mat_S3[[i]]$matA)$stable.stage
+  SSD <- eigen.analysis(mat_S1[[i]]$matA)$stable.stage
   
   ### cut1 is an automatic trimmer for SSD based on startLife
   cut1 <- seq(1:(startLife-1))
   
   ## reweight SSD it so it is the stable stage as if the seeds had not been measured.  
   SSD2 <- SSD[startLife:length(SSD)]/(1-sum(SSD[cut1]))
-  
   
   
   ##Then weight the reproduction from non-seed stages, 
@@ -320,39 +359,53 @@ for(i in 1:nrow(metadata_S3)) {
 summary(mean_rep)
 
 
-###### ---- Generation time ----
+######
+###### ---- Generation time ---- 
+
+#Generation time
+
+#Basically some type of measure of how long it takes for a cohort to relace itself.
+#Turns out there is a bunch of ways to do this. I used the popbio package which 
+#calculates the time it takes for a pop to grow by a factor of R0 the net reprodictive 
+#rate (how long it would for everyone to replace themselves) and is calulated  
+#log(net_repo_rate)/log(population growth rate)
+
 
 gen_time <- c()
 
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   
   
-  gen_time[i] <- generation.time(mat_S3[[i]]$matA, r = mat_S3[[i]]$matF)
+  gen_time[i] <- generation.time(mat_S1[[i]]$matA, r = mat_S1[[i]]$matF)
   
 }
 
 summary(gen_time)
 
 
-######  ---- Calculating progressive growth (SSD weighted) --- 
+
+which(is.na(gen_time))
+
+
+#### ---- Progressive growth (SSD weighted) ----
+######
 
 #A measure of how quickly you move through the growth stages of the transition matrix,
-# for above ground stages only.
+# excluding seed to seedling as this is not comparable. 
+
+#length of the matrix
 
 ## Here I am using matU directly, this is okay because I have already removed matrices where clonality was measured.  i.e. matC == 0
 
-
-startLife =4
-
 prog_growth <- c()
 
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   
   #Progression
   ## Put zeros in the upper triangle, leaving only the growth transitions in the matrix U
   ## 
   
-  matU <- mat_S3[[i]]$matU
+  matU <- mat_S1[[i]]$matU
   
   
   matU[upper.tri(matU,diag = TRUE )] <- c(0)
@@ -371,7 +424,7 @@ for(i in 1:nrow(metadata_S3)) {
   prog_sum <- prog_sum[startLife:length(prog_sum)]
   
   
-  SSD <- eigen.analysis(mat_S3[[i]]$matA)$stable.stage
+  SSD <- eigen.analysis(mat_S1[[i]]$matA)$stable.stage
   ### now cut SSD and reweight it so it is the stable stage if seeds were not 
   ## measured.  
   
@@ -390,26 +443,31 @@ for(i in 1:nrow(metadata_S3)) {
 summary(prog_growth) 
 
 
-### ---- Calculating retrogression (SSD weighted) --- 
+### Zeros here are annual species, i.e. they can never progress upwards in an annual
+## time step from when they are above ground already. 
+
+
+### Calculating retrogression (SSD weighted)
 
 #Retrogression, calculated as per progression, but we blank out the upper triangle 
 # instead of the lower.  Again, I use matU directly as clonal matrices are zero in 
 # this dataset.
 
-# Above ground stages only.
 
-startLife = 4
+#### ---- Retrogressive growth (SSD weighted) ----
+
+startLife = 2 
 
 retro_growth <- c()
 
 
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   
   #Progression
   ## Put zeros in the upper triangle, leaving only the growth transitions in the matrix U
   ## 
   
-  matU <- mat_S3[[i]]$matU
+  matU <- mat_S1[[i]]$matU
   
   matU[lower.tri(matU,diag = TRUE )] <- c(0)
   ###sum up the progression from each stage
@@ -426,7 +484,7 @@ for(i in 1:nrow(metadata_S3)) {
   retro_sum <- retro_sum[startLife:length(retro_sum)]
   
   
-  SSD <- eigen.analysis(mat_S3[[i]]$matA)$stable.stage
+  SSD <- eigen.analysis(mat_S1[[i]]$matA)$stable.stage
   ### now cut SSD and reweight it so it is the stable stage if seeds were not 
   ## measured.  
   
@@ -443,6 +501,9 @@ for(i in 1:nrow(metadata_S3)) {
 
 
 summary(retro_growth) 
+
+### Note from looking at the papers it seems that a lot of the 'retrogression' in this database
+## is actually caused by grazing. 
 
 
 #### ---- "Gini index" ----  
@@ -461,47 +522,50 @@ summary(retro_growth)
 
 
 GiniF_life_99 <- c()
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   tryCatch({
-    repro1 <- lxmx_curve_S3[[i]]$mx[1:(dead_99[i])]
+    repro1 <- lxmx_curve_S1[[i]]$mx[1:(dead_99[i])]
     
     GiniF_life_99[i] <- Gini(repro1, corr = TRUE)
     
   }
   
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about NaN okay to to ignore here:",conditionMessage(e), "\n")})
 }
 
 summary(GiniF_life_99)
-
+# 
 
 
 #### calculate with lifespan = 99.9%
 GiniF_life_999 <- c()
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   tryCatch({
-    repro1 <- lxmx_curve_S3[[i]]$mx[1:(dead_999[i])]
+    repro1 <- lxmx_curve_S1[[i]]$mx[1:(dead_999[i])]
     
     GiniF_life_999[i] <- Gini(repro1, corr = TRUE)
     
   }
   
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about NAN okay to ignore here:",conditionMessage(e), "\n")})
 }
 
 summary(GiniF_life_999)
 
-
-
+GiniF_life_99[which(metadata_S1$OrganismType == "Annual")]
 ### always 1 - which means totally unequal. 
+
+### Many of these are annual species.  Where there is no survival into the second year 
+### and therefore mx is zero throughout.  These will be set to Gini = 0 in the in 
+### error checking as they have no variation. 
 
 ### GiniF_repro = Gini accross life starting at average age at maturity (La1) (rounded down)
 ### 
 
 GiniF_repro <- c()
-for(i in 1:nrow(metadata_S3)) {
+for(i in 1:nrow(metadata_S1)) {
   tryCatch({
-    repro1 <- lxmx_curve_S3[[i]]$mx[floor(La1[i]):(dead_999[i])]
+    repro1 <- lxmx_curve_S1[[i]]$mx[floor(La1[i]):(dead_999[i])]
     
     GiniF_repro[i] <- Gini(repro1, corr = TRUE)
     
@@ -514,31 +578,40 @@ for(i in 1:nrow(metadata_S3)) {
     
   }
   
-  , error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+  , error=function(e){cat("ERROR about NaN okay to ignore here:",conditionMessage(e), "\n")})
 }
-
-GiniF_repro
 
 summary(GiniF_repro)
 
+setdiff(which(is.na(GiniF_life_99)), which(is.na(GiniF_repro)))
+## integer(0)
 
-#### ---- join everything into one dataset and export ----
 
-demo_data_S3 <- cbind(metadata_S3, mean_rep, net_rep, dead_50, dead_99, dead_999, 
+#######################
+
+
+#### ---- now join everything into one dataset and export ----
+
+demo_data_S1 <- cbind(metadata_S1, mean_rep, net_rep, dead_50, dead_99, dead_999, 
                       Survival_99, Survival_999,Survival_LaRepLife, prog_growth,
                       retro_growth, RepLifeExp, La1, 
-                      GiniF_repro,  GiniF_life_99, GiniF_life_999,  gen_time)
+                      GiniF_repro,  GiniF_life_99, GiniF_life_999, gen_time )
 
-demo_data_S3$NSeedStages <- 3
+demo_data_S1$NSeedStages <- 1
+ 
+ncol(demo_data_S1)
+# # [1] 52
+# ncol(demo_data_S1)
+# # [1] 72
 
 
-names(demo_data_S3)[53:68] <- c("Mean_repro", "Net_repro", "Age_50_dead", "Age_99_dead", "Age_999_dead",
+names(demo_data_S1)[53:68]  <- c("Mean_repro", "Net_repro", "Age_50_dead", "Age_99_dead", "Age_999_dead",
                                  "survival_index99", "Survival_index999", "Survival_index_La_RepExp",
                                  "Growth", "Retrogression", 
                                  "Repro_life_expectancy", "Age_at_Maturity", "GiniF_repro",
-                                 "Gini_life99", "Gini_life999", "Gen_time")
+                                 "Gini_life99", "Gini_life999","Gen_time")
 
-write.csv(demo_data_S3, "demography_3yr_seedbank_08_06_2018.csv")
+write.csv(demo_data_S1, "demography_1yr_seedbank_03_2020.csv")
 
 ###########################################################
 

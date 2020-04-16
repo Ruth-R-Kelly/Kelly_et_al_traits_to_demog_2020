@@ -10,5 +10,5 @@ There are two main stages in this,
     
 These are stored in the folders - "1_Calculating_Life_History_Metrics" and   "2_Joining_Env_Phylo_and_GLMMing" respectively.  
 
-Inside each of these folders there is a file called over view code, this is an rmarkdown file that describes and runs all of the analyses in that folder. 
+Inside each of these folders there is a file called overview code, this is an rmarkdown file that describes and runs all of the analyses in that folder. 
 
