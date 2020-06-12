@@ -6,13 +6,11 @@
 
 ### If you run this code without running the overview file
 # "overview_analysis_07_04_2020.Rmd" you will need to load these libraries here. 
-library(MCMCglmm)
+# library(MCMCglmm)
 # library(MCMCpack)
-# library(ape)
-library("caper")
-# library(vegan)
-
-library("phangorn")
+# # library(ape)
+# library("caper")
+# library("phangorn")
 # #######
 
 ### clear previous files for safety :)
@@ -348,7 +346,7 @@ mod_H1 <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
 #2. Climate predicts life history in absence of functional traits.
 mod_H2 <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
                                     Repro_life_expectancy,GiniF_999, Gen_time) 
-                      ~ trait:PC1 + trait:PC2  - 1,
+                      ~ trait:Temp_PCA1 + trait:logAridityIndex - 1,
                       random= ~ idh(trait):animal, 
                       rcov = ~us(trait):units,
                       family = c("gaussian", "gaussian",
@@ -385,7 +383,8 @@ mod_H4 <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
                                     Repro_life_expectancy,GiniF_999, Gen_time) 
                       ~ trait:PC1 + trait:PC2 +
                         trait:Temp_PCA1 + trait:logAridityIndex +
-                        trait:PC1:Temp_PCA1 +  trait:PC1:logAridityIndex - 1,
+                        trait:PC1:Temp_PCA1 +  trait:PC1:logAridityIndex + 
+                     trait:PC2:Temp_PCA1 +  trait:PC2:logAridityIndex - 1,
                       random= ~ idh(trait):animal, 
                       rcov = ~us(trait):units,
                       family = c("gaussian", "gaussian",

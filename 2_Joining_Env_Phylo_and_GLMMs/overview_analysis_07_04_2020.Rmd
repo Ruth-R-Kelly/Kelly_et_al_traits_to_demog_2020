@@ -13,11 +13,15 @@ For the paper Kelly et al. 2020 'Environmental and evolutionary context are requ
 
 Required code and datafiles for this code are as follows:
 
- * "matching_3traits_demo_data_20_04_2017.csv"
- * "matching_4traits_demo_data_20_04_2017.csv"
- * "matching_trait_demo_data_20_04_2017.csv"  
+Data
+ * "matching_4traits_demo_data_03_04_2020.csv"
  * "Vascular_Plants_rooted.dated.tre"  (Zanne et al. 2014)
+ * Climate data - see notes below
  
+Code files: 
+ * "drop_phylo_names_03_2020.R" 
+ * "extract_env_04_2020.R"
+ * "mcmcGLMM_code_04_2020.R"
  
 This first chunk of code sets my working directory, change this to wherever these files are stored on your machine. 
 
@@ -43,6 +47,7 @@ library("dplyr") # for data manipulation
 library("sp") # for creating spatial points object
  library("raster") # for loading and manipulating climate and aridity rasters
 library("MCMCglmm") # multivariate bayesian GLMMs
+library("MCMCpack") # glmm validation functions
 
 ### Note: some of these packages overwrite functions in others, 
 # the order they are loaded in could matter. 
@@ -120,6 +125,7 @@ direct R to the correct location in this chunk.
 Outputs: 
   - "spatialPoints_withclim_03_2020.Rdata"
   - "data_with_env_vars_03_2020.csv"
+  
 
 ```{r extract env var, include=FALSE}
 Clim_files <- "C:/R/Climate_maps_2018/Climate"
@@ -131,6 +137,6 @@ source("extract_env_04_2020.R")
 ### Step 3 - Finally some analysis (a.k.a. the MCMCglmm bit)
 
 ```{r mcmcGLMM}
-
+source("mcmcGLMM_code_04_2020.R") 
 ```
 

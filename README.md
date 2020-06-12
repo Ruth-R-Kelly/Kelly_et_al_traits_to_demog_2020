@@ -12,3 +12,5 @@ These are stored in the folders - "1_Calculating_Life_History_Metrics" and   "2_
 
 Inside each of these folders there is a file called overview code, this is an rmarkdown file that describes and runs all of the analyses in that folder. 
 
+I have also added a third folder 3 - Working_with_glmm_outputs, this folder contains a few bits of code that were used after the fitting of the main multiple response model presented in the paper. Relating to model variance calculation and some plotting. 
+

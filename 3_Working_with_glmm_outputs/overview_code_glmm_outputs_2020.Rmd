@@ -1,0 +1,57 @@
+---
+title: "Overview_code_glmm_outputs_2020"
+author: "Ruth Kelly"
+date: "6/12/2020"
+output: html_document
+---
+
+This folder contains code relating to the outputs of the final model presented in the paper (see folders 1 - Calculating_Life_History_Metrics, and 2_Joining_Env_Phylos_and_GLMMs for details of how to get to this point).  Folders 1 and 2 need to be followed strictly in order for the code in those folders to run correctly. 
+
+The code in this folder works as a stand alone piece, and is not a strict recipe, just some extra pieces of code that may be of interest in terms of how the model variance was estimated and the model outputs were presented. 
+
+Due to the stochatic nature of fitting of models inherent in the Bayesian approach estimates of model parameters can vary slightly between model runs. (Technically, they could vary a lot, that's why we need to check for model convergence etc. But in this the models passed convergence testing and are very similar, but not exactly the same in the decimal places of some estimates).  For that reason I've included my final model as presented in the paper in this folder for reference - it's called 'mod_fin1_24_07-2018.RData'.
+
+T
+
+
+This first chunk of code sets my working directory, change this to wherever these files are stored on your machine. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# set your root direction to the the folder '3_Working_with_glmm_outputs' 
+# whereever it lives on your machine
+knitr::opts_chunk$set(root.dir = "C:/R/Kelly_et_al_traits_to_demog_2020/3_Working_with_glmm_outputs")
+```
+
+
+
+The following libraries are needed.  If you don't have them, install them first using the function 'install.packages()'
+
+```{r libraries}
+library("MCMCglmm")
+library("ggplot2")
+library("viridis")
+library("pheatmap")
+
+```
+
+## Calculating model variance.
+
+This code calculates the model variance of the full model as presented in the paper, it is based closely on code by Shinichi Nakagawa and his approach to calculated conditional R2 values for mixed models presented in his paper: https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/j.2041-210x.2012.00261.x
+
+There are two main differences when applying this method to the estimation of variance in a multiple repsonse model. The first is in the code for the calculation for the fixed effects variance based on the model design matrix, because this matrix is laid out differently in a multiple response model in mcmcGLMM (i.e. there are extra lines in the matrix for each response trait, and zeros for combinations that aren't estimated, contact me for more details if you are interested). This code works on my outputs but would need adaptation for models with different numbers of responses. The second is the handling of the residual covariances, here we have included these the residual variance estimate of the calculation by summing the entire Rcov matrix.  Conceptually, this means our estimate of the variance explained by the model doesn't include estimates that the model makes about how the response metrics (e.g. fecundity and lifespan are related to each other).
+
+
+```{r calculating variance}
+source("model_variance_09_06_2020.R")
+```
+
+## Plotting model coefficients
+
+The code below generates the coefficient plots shown in the paper.  Small changes were made to the fonts etc. afterwards in a pdf editor, but main plotting functionality is demonstrating in this code. 
+
+```{r plotting model coefficients}
+
+```
+
