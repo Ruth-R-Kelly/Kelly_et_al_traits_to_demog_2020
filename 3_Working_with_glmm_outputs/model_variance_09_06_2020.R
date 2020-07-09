@@ -11,7 +11,7 @@ rm(list = ls())
 # library("MCMCglmm")
 
 
-mod_fin_1 <- readRDS("mod_fin_1_24072018.RData")
+mod_fin_1 <- readRDS("mod_fin1_2020.RData")
 
 ### 
 #summary(mod_fin_1)

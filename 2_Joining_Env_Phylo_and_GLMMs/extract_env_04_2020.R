@@ -7,7 +7,7 @@
 ### and phylogeny: approach with caution. Ecology letters, 19(12), pp.1429-1438."
 
 ### Specifically, this joins information on Aridity Index, Temperature, and 
-### standard deviation of precipitation. See details 'overview_analysis_21_04_2018'
+### standard deviation of precipitation. 
 
 # ###  load packages
 # library("sp") # for creating spatial points object

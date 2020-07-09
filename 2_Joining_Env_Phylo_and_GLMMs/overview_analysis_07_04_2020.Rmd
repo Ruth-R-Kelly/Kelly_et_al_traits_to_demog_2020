@@ -124,7 +124,7 @@ direct R to the correct location in this chunk.
 
 Outputs: 
   - "spatialPoints_withclim_03_2020.Rdata"
-  - "data_with_env_vars_03_2020.csv"
+  - "data_with_needed_env_vars_03_2020.csv"
   
 
 ```{r extract env var, include=FALSE}

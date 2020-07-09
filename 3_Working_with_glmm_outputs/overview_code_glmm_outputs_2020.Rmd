@@ -9,9 +9,8 @@ This folder contains code relating to the outputs of the final model presented i
 
 The code in this folder works as a stand alone piece, and is not a strict recipe, just some extra pieces of code that may be of interest in terms of how the model variance was estimated and the model outputs were presented. 
 
-Due to the stochatic nature of fitting of models inherent in the Bayesian approach estimates of model parameters can vary slightly between model runs. (Technically, they could vary a lot, that's why we need to check for model convergence etc. But in this the models passed convergence testing and are very similar, but not exactly the same in the decimal places of some estimates).  For that reason I've included my final model as presented in the paper in this folder for reference - it's called 'mod_fin1_24_07-2018.RData'.
+Due to the stochatic nature of fitting of models inherent in the Bayesian approach estimates of model parameters can vary slightly between model runs. (Technically, they could vary a lot, that's why we need to check for model convergence etc. But in this the models passed convergence testing and are very similar, but not exactly the same in the decimal places of some estimates).  For that reason I've included my final model as presented in the paper in this folder for reference - it's called 'mod_fin1_2020.RData'.
 
-T
 
 
 This first chunk of code sets my working directory, change this to wherever these files are stored on your machine. 
@@ -34,6 +33,7 @@ library("ggplot2")
 library("viridis")
 library("pheatmap")
 
+
 ```
 
 ## Calculating model variance.
@@ -52,6 +52,6 @@ source("model_variance_09_06_2020.R")
 The code below generates the coefficient plots shown in the paper.  Small changes were made to the fonts etc. afterwards in a pdf editor, but main plotting functionality is demonstrating in this code. 
 
 ```{r plotting model coefficients}
-
+source("plotting_mcmcGLMM_coefs_demo_code_2020.R")
 ```
 

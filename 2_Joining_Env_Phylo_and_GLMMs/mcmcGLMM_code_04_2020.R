@@ -8,16 +8,17 @@
 # "overview_analysis_07_04_2020.Rmd" you will need to load these libraries here. 
 # library(MCMCglmm)
 # library(MCMCpack)
-# # library(ape)
+# library(ape)
 # library("caper")
 # library("phangorn")
+# library("vegan")
 # #######
 
 ### clear previous files for safety :)
 rm(list = ls())
 
 ### read in plant trait data in order of phylo 
-plant_data <- read.csv("data_with_all_env_vars_03_2020.csv", row.names = "X")
+plant_data <- read.csv("data_with_needed_env_vars_03_2020.csv", row.names = "X")
 
 # General data checking. 
 # str(plant_data)
@@ -40,9 +41,9 @@ phy_tree2 <- nnls.tree(cophenetic(phy_tree),phy_tree,rooted=TRUE)
 
 #### check trees similarity
 # 
-# tips<-phy_tree2$tip.label
-# cor(as.vector(cophenetic(phy_tree)[tips,tips]),
-#     as.vector(cophenetic(phy_tree2)[tips,tips]))
+ tips<-phy_tree2$tip.label
+ cor(as.vector(cophenetic(phy_tree)[tips,tips]),
+     as.vector(cophenetic(phy_tree2)[tips,tips]))
 
 ### 1
 
@@ -300,7 +301,7 @@ RcovN_ests
 mod_Null$DIC
 
 ### priorNull no phylo 
-
+priorNull2 <- list(R = list(V = diag(6)*0.02, nu = 7))
 
 mod_Null_no_phy <- MCMCglmm(fixed =  cbind(Age_at_Maturity,Mean_repro,survival_index999,
                                     Repro_life_expectancy,GiniF_999, Gen_time)
@@ -315,13 +316,16 @@ mod_Null_no_phy <- MCMCglmm(fixed =  cbind(Age_at_Maturity,Mean_repro,survival_i
                      nitt = nitt,
                      burnin = burnin,
                      thin = thin, 
-                     prior = priorNull)
+                     prior = priorNull2)
 ###
 
 #saveRDS(object = mod_Null_no_phy, file = "mod_Null_no_phylo_13022019.RData")
 
 
 ##### Candidate models 
+
+prior2 <- list(R = list(V = diag(6)*0.02, nu = 7), 
+                  G = list(G1 = list(V = diag(6), nu = 0.002)))
 
 # 1. Functional traits predict life history in absence of climate.
 
@@ -400,9 +404,6 @@ mod_H4 <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
 
 
 ###### Model 1 - Full model with interactions ####
-
-prior2 <- list(R = list(V = diag(6)*0.02, nu = 7), 
-               G = list(G1 = list(V = diag(6), nu = 0.002)))
 
 
 
@@ -641,32 +642,3 @@ saveRDS(object = mod_fin_1, file = "mod_fin_1_2020.RData")
 
 ### Run final model without the phylogenetic structure for variance
 ### comparisons later 
-
-### update prior to remove phylogenetic priors. 
-
-prior3 <- list(R = list(V = diag(6)*0.02, nu = 7))
-            #   , 
-             #  G = list(G1 = list(V = diag(6), nu = 0.002)))
-
-
-mod_fin_no_phylo <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
-                                    Repro_life_expectancy,GiniF_999, Gen_time) 
-                      ~ trait:PC1 + trait:PC2 +
-                        trait:Temp_PCA1 + trait:logAridityIndex +
-                        trait:PC1:Temp_PCA1 +  trait:PC1:logAridityIndex - 1,
-                      rcov = ~us(trait):units,
-                      family = c("gaussian", "gaussian",
-                                 "gaussian", "gaussian",
-                                 "gaussian", "gaussian"),
-                      pedigree = mcmc_tree,
-                      data = mcmc_data,
-                      scale = TRUE,
-                      nitt = nitt,
-                      burnin = burnin,
-                      thin = thin, 
-                      prior = prior3)
-
-# save for later reference
-#saveRDS(object = mod_fin_no_phylo, file = "mod_fin_no_phylo_18_12_2019.RData")
-
-

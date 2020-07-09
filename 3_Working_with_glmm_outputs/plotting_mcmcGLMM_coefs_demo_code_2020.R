@@ -1,4 +1,4 @@
-#### code to plot MCMCglmm coefficients for 03/09/2018 ####
+#### code to plot MCMCglmm coefficients ####
 
 #### remove previous objects
 
@@ -13,8 +13,8 @@ rm(list = ls())
 # library("viridis")
 ####
 
-mod_fin_1 <- readRDS("mod_fin_1_24072018.RData")
-explanatory_data <- read.csv("mcmc_data_27_07_2018.csv", row.names = "X")
+mod_fin_1 <- readRDS("mod_fin1_2020.RData")
+explanatory_data <- read.csv("mcmc_data_2020.csv", row.names = "X")
 
 sum1 <- summary(mod_fin_1)
 
@@ -82,22 +82,7 @@ fixed_ests$Predictor <- ordered(fixed_ests$Predictor,
                                      "Structure and size"
                                    ))
 
-### add column for transparancy in plotting based on significance
-
-TransP <- c()
-
-
-for(i in 1:nrow(fixed_ests)) {
-  x <- fixed_ests$pMCMC[i]
-if(x > 0.061) {
-  TransP[i] <- "Non-Sig"
-} else {
-  TransP[i] <- "Sig"
-}
-  
-}
-
-fixed_ests$TransP <- TransP
+### 
 
 ### Hashed out lines here call plot to a pdf/phg file in the current folder options. 
 # otherwise plot will appear in the rmd output, or r plot window if you run the code in the console.
@@ -150,12 +135,7 @@ summary(phylo_ests)
 row.names(phylo_ests)
 
 
-#### scale phylo estimates by full model variance, 
-# to make their values interprettable outside of the model context 
-
-# value of full model variance was calculated in the code
-# 'model_variance_09_06_2020.R' as .. 8.070693  - ie. variance of fixed, phylo and residuals
-Model_tot_var <- 8.070693
+#### 
 
 ### get outputted estimates for phylogeny
 phylo_ests <- as.data.frame(sum1$Gcovariances) 
@@ -186,29 +166,6 @@ phylo_ests$Trait <- ordered(phylo_ests$Trait,
 
 summary(phylo_ests$Trait)
 
-phylo_ests$post.mean.scaled <- (phylo_ests$post.mean/Model_tot_var)*100
-phylo_ests$Lower_95_CI.scaled <- (phylo_ests$Lower_95_CI/Model_tot_var)*100
-phylo_ests$Upper_95_CI.scaled <- (phylo_ests$Upper_95_CI/Model_tot_var)*100
-
-sum(phylo_ests$post.mean.scaled)
-
-
-#### Again hashed out lines here make the outputs print to pdf/png in the current folder
-#pdf("Phylocoefs_variance_scaled.pdf", height = 3.5, width = 5)
-#png("aPhylocoefs.png", height = 3.5, width = 5, units = "in", res = 300)
-zp1 <- ggplot(phylo_ests)
-zp1 <- zp1 + geom_hline(yintercept = 0, colour = gray(2/3), lty = 2)
-zp1 <- zp1 + geom_pointrange(aes(x = Trait, y = post.mean.scaled, 
-                                 ymin = Lower_95_CI.scaled,
-                                 ymax = Upper_95_CI.scaled),
-                             lwd = 0.75, position = position_dodge(width = 1/2),
-                             shape = 21, fill = "grey40", colour = "grey40")
-zp1 <- zp1 + coord_flip() + theme_bw()
-zp1 <- zp1 + theme(axis.title.y=element_blank(), axis.title.x = element_blank())
-zp1 <- zp1 + theme(axis.text.x = element_text(colour = "black"))
-zp1 <- zp1 + theme(axis.text.y = element_text(colour = "black"))
-print(zp1)
-#dev.off()
 
 #pdf("Phylocoefs_variance_unscaled.pdf", height = 3.5, width = 5)
 #png("aPhylocoefs.png", height = 3.5, width = 5, units = "in", res = 300)
