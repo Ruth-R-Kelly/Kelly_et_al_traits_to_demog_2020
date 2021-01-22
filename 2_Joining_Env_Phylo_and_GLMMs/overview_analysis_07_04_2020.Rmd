@@ -118,13 +118,15 @@ Required files:
   - Trait and demography dataset - "phylo_ordered_trait_demog_03_2020.csv"
 
 On my computer the climate files are stored in a folder called :
-"C:/R/Climate_maps_2018/Climate"  I have set this location in the code chunk below. You will not to download these files onto your own computer and 
-direct R to the correct location in this chunk. 
+"C:/R/Climate_maps_2018/Climate"  I have set this location in the code chunk below. You will need to download these climate files onto your own computer and direct R to the correct location in this chunk. 
 
+Finally, the script "add_growth_forms" adds the growth form categories used in the figures and suplementary tables to the dataset and saves the file
+"data_with_needed_env_vars_for_GLMM_analysis.csv". This is the file that which forms the basis for the statistical analysis in the following step. 
 
 Outputs: 
   - "spatialPoints_withclim_03_2020.Rdata"
-  - "data_with_needed_env_vars_03_2020.csv"
+  - "data_with_needed_env_vars_03_2020.csv" - midway step outputted by the script 'extract_env_04_2020"
+  - "data_with_needed_env_vars_for_GLMM_analysis.csv"
   
 
 ```{r extract env var, include=FALSE}
@@ -132,9 +134,19 @@ Clim_files <- "C:/R/Climate_maps_2018/Climate"
 Arid_files <-"C:/R/Climate_maps_2018/AI_annual/ai_yr"
 Main_files <- "C:/R/Kelly_et_al_traits_to_demog_2020/2_Joining_Env_Phylo_and_GLMMing"
 source("extract_env_04_2020.R")
+source("add_growth_forms.r")
+
 ```
 
 ### Step 3 - Finally some analysis (a.k.a. the MCMCglmm bit)
+
+To run this chunk you need the datasheet containing all the trait, climate and derived demographic metrics and the matching phylogeny
+
+Needed files: 
+
+- "data_with_needed_env_vars_for_GLMM_analysis.csv" 
+- "reduced_tree_for_traits_03_2020.nex"
+
 
 ```{r mcmcGLMM}
 source("mcmcGLMM_code_04_2020.R") 

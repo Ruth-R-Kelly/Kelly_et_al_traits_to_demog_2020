@@ -18,7 +18,7 @@
 rm(list = ls())
 
 ### read in plant trait data in order of phylo 
-plant_data <- read.csv("data_with_needed_env_vars_03_2020.csv", row.names = "X")
+plant_data <- read.csv("data_with_needed_env_vars_for_GLMM_analysis.csv", row.names = "X")
 
 # General data checking. 
 # str(plant_data)
@@ -31,8 +31,7 @@ plant_data <- read.csv("data_with_needed_env_vars_03_2020.csv", row.names = "X")
 ####
 phy_tree <- read.nexus("reduced_tree_for_traits_03_2020.nex")  
 
-plot(phy_tree)
-
+#plot(phy_tree)
 
 ## This is an ultrametric tree but R isn't recognising it as such
 # because of pre-processing therefore we make it ultrametric following: 
@@ -48,9 +47,9 @@ phy_tree2 <- nnls.tree(cophenetic(phy_tree),phy_tree,rooted=TRUE)
 ### 1
 
 ### check species names align with phylogeny
-phy_tree2$tip.label == row.names(plant_data)
+#phy_tree2$tip.label == row.names(plant_data)
 
-names(plant_data)
+#names(plant_data)
 
 #### assemble the trait data ####
 
@@ -59,16 +58,7 @@ func_trs <- plant_data[,c(2:5)]
 # Checking and for reference 
 # summary(func_trs)
 # 
-# #    Height_mean         LA_mean            LMA_mean          SM_mean        
-# # Min.   : 0.0242   Min.   :     4.0   Min.   :0.02048   Min.   :    0.00  
-# # 1st Qu.: 0.2574   1st Qu.:   117.4   1st Qu.:0.04615   1st Qu.:    0.74  
-# # Median : 0.6187   Median :  1404.6   Median :0.06053   Median :    2.94  
-# # Mean   : 8.5384   Mean   :  9583.6   Mean   :0.08167   Mean   :  797.31  
-# # 3rd Qu.: 8.8448   3rd Qu.:  4648.0   3rd Qu.:0.08927   3rd Qu.:   26.36  
-# # Max.   :61.5852   Max.   :485704.8   Max.   :0.31301   Max.   :32600.00  
-# 
-# plant_data[which(func_trs$LA_mean > 40000),]
-
+ 
 # hist(func_trs[,1])
 # hist(func_trs[,2])
 # hist(func_trs[,3])
@@ -77,15 +67,15 @@ func_trs <- plant_data[,c(2:5)]
 ### all very left skewed .. try log transform
 
 log_func_trs <- log(func_trs)
+# 
+# hist(log_func_trs[,1])
+# hist(log_func_trs[,2])
+# hist(log_func_trs[,3])
+# hist(log_func_trs[,4])
 
-hist(log_func_trs[,1])
-hist(log_func_trs[,2])
-hist(log_func_trs[,3])
-hist(log_func_trs[,4])
-##### better...
+##### not perfect, but better...
 
 s_log_func_trs <- scale(log_func_trs)
-
 
 
 #### use PCA to get trait axes.. ####
@@ -107,7 +97,8 @@ plot(pca1)
 Axis1 <- -scores(pca1, choices = 1, display = "sites")
 Axis2 <- -scores(pca1, choices = 2, display = "sites")
 
-summary(pca1)
+
+#summary(pca1)
 
 
 #### Get climate data ####
@@ -403,7 +394,7 @@ mod_H4 <- MCMCglmm(fixed = cbind(Age_at_Maturity,Mean_repro,survival_index999,
                       prior = prior2)
 
 
-###### Model 1 - Full model with interactions ####
+###### Model 1 - Final model with interactions between PC1 and climate vars only ####
 
 
 
