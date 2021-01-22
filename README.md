@@ -21,9 +21,7 @@ I have also added a third folder 3 - Working_with_glmm_outputs, this folder cont
 
 **Data**
 
-If you'd prefer to just have the data for the derived demography metrics with matching climate and trait data so you can do your own thing, you will find it in the file 'data_with_needed_env_vars_for_GLMM_analysis' in the home folder. Similarly, 'reduced_tree_for_traits_03_2020.nex' contains the matching phylogeny. 
-
-Please keep in mind that the databases we took our original data from are constantly growing and being updated. Therefore, if you want to do further more detailed research in this area we refer you to the following datasources which were invaluable to us.
+If you'd prefer to just have the data for the derived demography metrics with matching climate and trait data so you can do your own thing, you will find it in the file 'data_with_needed_env_vars_for_GLMM_analysis' in the folder 2_Joining_Env_Phylo_and_GLMMs. Similarly,'reduced_tree_for_traits_03_2020.nex' contains the matching phylogeny. **However**, please note that we have provided these datasets primarily for transparancy and reproducibility of our own analysis.The databases we took our original data from are constantly growing and being updated. Therefore, if you want to do further more detailed research in this area we refer you to the following datasources which were invaluable to us. Please cite these original datasources alongside our Ecology Letters paper if you use our compiled dataset in any publication. Further, references to trait data used in the compilation of our dataset are given in supplementary information accompanying the main paper.
 <br/>
 
 ##### Life history
